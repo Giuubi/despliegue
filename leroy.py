@@ -10,8 +10,9 @@ app = Flask(__name__,
             static_folder='.',
             static_url_path='') 
 
-# Seguridad: Límite de 16MB por archivo
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 
+# Seguridad: Límite estricto de 16MB por archivo para Flask
+LIMITE_BYTES = 16 * 1024 * 1024
+app.config['MAX_CONTENT_LENGTH'] = LIMITE_BYTES 
 
 CARPETA_SUBIDAS = 'uploads'
 CARPETA_PROCESADOS = 'processed'
@@ -20,7 +21,6 @@ os.makedirs(CARPETA_PROCESADOS, exist_ok=True)
 
 # Organización detallada solicitada:
 MAPA_EXTENSIONES = {
-    # Documentos
     '.pdf': 'PDFs',
     '.docx': 'Documentos_Word',
     '.doc': 'Documentos_Word',
@@ -28,21 +28,18 @@ MAPA_EXTENSIONES = {
     '.pptx': 'PowerPoint',
     '.ppt': 'PowerPoint',
     '.txt': 'Notas_Texto',
-    
-    # Multimedia
     '.jpg': 'Fotos_JPG',
     '.png': 'Fotos_PNG',
     '.mp3': 'Audio_MP3',
     '.wav': 'Audio_Música',
     '.mp4': 'Videos',
-    
-    # Otros
     '.exe': 'Instaladores_EXE',
     '.zip': 'Comprimidos_ZIP'
 }
 
 @app.errorhandler(413)
 def archivo_muy_grande(e):
+    # Retorna un texto simple o puedes renderizar una plantilla específica
     return "Error: El archivo es demasiado pesado (Máximo 16MB)", 413
 
 def organizar_archivos_extraidos(ruta_temporal):
@@ -58,7 +55,6 @@ def organizar_archivos_extraidos(ruta_temporal):
                 os.makedirs(ruta_destino, exist_ok=True)
                 
                 ruta_original = os.path.join(raiz, nombre)
-                # Solo movemos si el archivo no está ya en la carpeta de destino
                 if raiz != ruta_destino:
                     shutil.move(ruta_original, os.path.join(ruta_destino, nombre))
 
@@ -68,6 +64,10 @@ def inicio():
 
 @app.route('/organizar', methods=['POST'])
 def gestionar_organizacion():
+    # CONTROL ANTICIPADO: Verifica el tamaño de la cabecera antes de leer el archivo
+    if request.content_length and request.content_length > LIMITE_BYTES:
+        return "Error: El archivo supera el límite permitido de 16MB", 413
+
     if 'archivo_zip' not in request.files:
         return "Error: No se encontró el archivo en la petición", 400
     
@@ -76,6 +76,8 @@ def gestionar_organizacion():
         nombre_seguro = secure_filename(archivo.filename)
         id_unico = str(uuid.uuid4())[:8]
         ruta_zip = os.path.join(CARPETA_SUBIDAS, f"{id_unico}_{nombre_seguro}")
+        
+        # Guardar archivo de forma segura
         archivo.save(ruta_zip)
 
         ruta_extraccion = os.path.join(CARPETA_SUBIDAS, f"{id_unico}_extraido")
