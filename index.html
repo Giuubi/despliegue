@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organizador de Archivos - Ro Byeol</title>
+    <link rel="icon" href="/images/icon.png">
+    <link rel="stylesheet" href="/styles/styles.css">
+</head>
+<body>
+
+    <div class="main-container">
+        <div class="card">
+            <div class="card-header">
+                <h1>Organizador Inteligente</h1>
+                <p>Clasificación automática por tipo de archivo</p>
+            </div>
+
+            <form action="/organizar" method="POST" enctype="multipart/form-data">
+                <input type="file" name="archivo_zip" id="zip-upload" accept=".zip" class="input-hidden">
+                
+                <label for="zip-upload" class="drop-area">
+                    <div class="icon">📂</div>
+                    <span class="instruction" id="estado">Haz clic para seleccionar tu archivo .zip</span>
+                    <span class="file-types" id="nombre-archivo">Ningún archivo seleccionado</span>
+                </label>
+
+                <div class="options">
+                    <p>Organiza: <b>PDF, Word, Excel, PowerPoint, MP3, Imágenes y más.</b></p>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    Procesar y Organizar
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Lógica para mostrar el nombre del archivo al seleccionarlo
+        document.getElementById('zip-upload').onchange = function () {
+            const file = this.files[0];
+            if (file) {
+                document.getElementById('nombre-archivo').innerHTML = "<b>Seleccionado:</b> " + file.name;
+                document.getElementById('estado').innerText = "¡Archivo listo para procesar!";
+                document.getElementById('estado').style.color = "#3b82f6";
+            } else {
+                document.getElementById('nombre-archivo').innerText = "Ningún archivo seleccionado";
+            }
+        };
+    </script>
+</body>
+</html>
