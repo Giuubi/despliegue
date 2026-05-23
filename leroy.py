@@ -21,6 +21,7 @@ os.makedirs(CARPETA_PROCESADOS, exist_ok=True)
 
 # Organización detallada solicitada:
 MAPA_EXTENSIONES = {
+    # Documentos
     '.pdf': 'PDFs',
     '.docx': 'Documentos_Word',
     '.doc': 'Documentos_Word',
@@ -28,18 +29,21 @@ MAPA_EXTENSIONES = {
     '.pptx': 'PowerPoint',
     '.ppt': 'PowerPoint',
     '.txt': 'Notas_Texto',
+    
+    # Multimedia
     '.jpg': 'Fotos_JPG',
     '.png': 'Fotos_PNG',
     '.mp3': 'Audio_MP3',
     '.wav': 'Audio_Música',
     '.mp4': 'Videos',
+    
+    # Otros
     '.exe': 'Instaladores_EXE',
     '.zip': 'Comprimidos_ZIP'
 }
 
 @app.errorhandler(413)
 def archivo_muy_grande(e):
-    # Retorna un texto simple o puedes renderizar una plantilla específica
     return "Error: El archivo es demasiado pesado (Máximo 16MB)", 413
 
 def organizar_archivos_extraidos(ruta_temporal):
@@ -55,6 +59,7 @@ def organizar_archivos_extraidos(ruta_temporal):
                 os.makedirs(ruta_destino, exist_ok=True)
                 
                 ruta_original = os.path.join(raiz, nombre)
+                # Solo movemos si el archivo no está ya en la carpeta de destino
                 if raiz != ruta_destino:
                     shutil.move(ruta_original, os.path.join(ruta_destino, nombre))
 
