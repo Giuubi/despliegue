@@ -16,7 +16,7 @@
                 <p>Clasificación automática por tipo de archivo</p>
             </div>
 
-            <form action="/organizar" method="POST" enctype="multipart/form-data">
+            <form id="form-organizar" action="/organizar" method="POST" enctype="multipart/form-data">
                 <input type="file" name="archivo_zip" id="zip-upload" accept=".zip" class="input-hidden">
                 
                 <label for="zip-upload" class="drop-area">
@@ -37,7 +37,7 @@
     </div>
 
     <script>
-        // Lógica para mostrar el nombre del archivo al seleccionarlo
+        // Tu lógica original para mostrar el nombre del archivo al seleccionarlo
         document.getElementById('zip-upload').onchange = function () {
             const file = this.files[0];
             if (file) {
@@ -48,6 +48,28 @@
                 document.getElementById('nombre-archivo').innerText = "Ningún archivo seleccionado";
             }
         };
+
+        // NUEVA LÓGICA: Valida el tamaño antes de dejar enviar el formulario
+        document.getElementById('form-organizar').addEventListener('submit', function (event) {
+            const input = document.getElementById('zip-upload');
+            
+            // Si el usuario da clic sin seleccionar nada, dejamos que actúe la validación nativa
+            if (!input.files || input.files.length === 0) return;
+
+            const archivo = input.files[0];
+            const limiteMaximo = 16 * 1024 * 1024; // 16MB exactos en Bytes
+
+            // Si supera el peso límite
+            if (archivo.size > limiteMaximo) {
+                // Calcula el tamaño en MB para mostrárselo amigablemente al usuario
+                const tamanoMB = (archivo.size / (1024 * 1024)).toFixed(2);
+                
+                alert("⚠️ Error: El archivo es demasiado pesado.\nEl límite máximo permitido es de 16 MB y tu archivo pesa " + tamanoMB + " MB.");
+                
+                // Cancela el envío de forma definitiva para que NO se quede colgado cargando
+                event.preventDefault(); 
+            }
+        });
     </script>
 </body>
 </html>
